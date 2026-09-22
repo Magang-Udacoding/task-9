@@ -1,11 +1,28 @@
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login.jsx';
+import Items from './pages/Items.jsx';
+import PrivateRoute from './components/PrivateRoute.jsx';
 
 function App() {
   return (
-    <div>
-      <h1>Inventaris App</h1>
-      <p>Setup berhasil. Siap dikembangkan.</p>
-    </div>
+    <BrowserRouter>
+    <Routes>
+      <Route
+      path="/login" element={<Login/>} /> 
+      
+      <Route
+      path="/items" element={
+      <PrivateRoute>
+        <Items/>
+      </PrivateRoute>
+      } 
+      /> 
+      
+      <Route
+      path="*" element={ <Navigate to="/login" replace /> } /> 
+      
+    </Routes>
+    </BrowserRouter>
   );
 }
 
