@@ -9,8 +9,6 @@ function Categories() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { logout } = useAuth();
-
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -95,7 +93,6 @@ function Categories() {
   return (
     <div>
       <h2>Categories</h2>
-      <button onClick={logout}> Logout </button>
       {formError && <p style={{ color: "red" }}>{formError}</p>}
 
       <form onSubmit={handleCreate}>

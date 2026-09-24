@@ -2,7 +2,6 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
 import axiosClient from "../api/axiosClient";
 
 function Items() {
@@ -10,8 +9,6 @@ function Items() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const { logout } = useAuth();
 
   const fetchData = async () => {
     try {
@@ -120,8 +117,6 @@ function Items() {
   return (
     <div>
       <h2>Items (Inventaris)</h2>
-      <button onClick={logout}>Logout</button>
-
       {/* post form */}
       {formError && <p style={{ color: "red" }}>{formError}</p>}
 
