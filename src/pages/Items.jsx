@@ -208,7 +208,7 @@ function Items() {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="w-full bg-electric-sapphire hover:bg-blue-400 text-deep-sapphire font-bold py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center disabled:opacity-70 disabled:cursor-not-allowed h-[46px]"
+              className="w-full bg-electric-sapphire hover:bg-blue-400 text-white font-bold py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center disabled:opacity-70 disabled:cursor-not-allowed h-[46px]"
             >
               {isSubmitting ? 'Saving...' : 'Add Item'}
             </button>
