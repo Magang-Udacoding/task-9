@@ -77,7 +77,7 @@ function Login() {
           <button 
             type="submit"
             disabled={isLoading}
-            className="mt-2 w-full bg-electric-sapphire hover:bg-blue-400 text-deep-sapphire font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="mt-2 w-full bg-electric-sapphire hover:bg-blue-400 text-white font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
