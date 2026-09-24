@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import axiosClient from "../api/axiosClient";
+import ConfirmModal from "../components/ConfirmModal";
 
 function Items() {
   const [items, setItems] = useState([]);
@@ -13,6 +14,7 @@ function Items() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null); // Reset error
       const [itemsResponse, categoriesResponse] = await Promise.all([
         axiosClient.get("/items"),
         axiosClient.get("/categories"),
@@ -20,8 +22,13 @@ function Items() {
 
       setItems(itemsResponse.data.data);
       setCategories(categoriesResponse.data.data);
-    } catch (error) {
-      setError("Failed to Get Items/Categories");
+    } catch (err) {
+      // Deteksi apakah backend mati
+      if (!err.response) {
+        setError("Connection to the server lost. Please make sure your backend is running!");
+      } else {
+        setError("Failed to Get Items/Categories");
+      }
     } finally {
       setLoading(false);
     }
@@ -67,14 +74,30 @@ function Items() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are You Sure to Delete this Item?")) return;
+  // delete
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
+  const handleDeleteClick = (item) => {
+    setDeleteTarget(item);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+    setDeleteError(null);
 
     try {
-      await axiosClient.delete(`/items/${id}`);
+      await axiosClient.delete(`/items/${deleteTarget.id}`);
+      setDeleteTarget(null);
       fetchData();
     } catch (err) {
-      alert("Failed to Delete this Item");
+      setDeleteError("Failed to Delete this Item");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -127,6 +150,27 @@ function Items() {
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <p className="text-text-muted">Loading items...</p>
+      </div>
+    );
+  }
+
+  // Tampilan ketika koneksi terputus / error di Items
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-4 bg-surface border border-surface-border rounded-xl p-6 text-center max-w-lg mx-auto mt-10">
+        <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 text-xl font-bold">
+          !
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-purity-white mb-1">Connection Lost</h3>
+          <p className="text-text-muted text-sm">{error}</p>
+        </div>
+        <button
+          onClick={fetchData}
+          className="bg-electric-sapphire hover:bg-blue-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -326,7 +370,7 @@ function Items() {
                           Edit
                         </button>
                         <button 
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => handleDeleteClick(item)}
                           className="px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
                         >
                           Delete
@@ -340,6 +384,17 @@ function Items() {
           </table>
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete Item"
+        message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        confirmText="Delete Item"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+        loading={isDeleting}
+        error={deleteError}
+      />
 
     </div>
   );

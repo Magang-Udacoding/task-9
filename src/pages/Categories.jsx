@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import axiosClient from "../api/axiosClient";
+import ConfirmModal from "../components/ConfirmModal";
 
 function Categories() {
   const [categories, setCategories] = useState([]);
@@ -12,10 +13,16 @@ function Categories() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
+      setError(null); // Reset error sebelum fetching
       const response = await axiosClient.get("/categories");
       setCategories(response.data.data);
     } catch (err) {
-      setError("Failed to Get Categories Data");
+      // Deteksi apakah backend mati atau error biasa
+      if (!err.response) {
+        setError("Connection to the server lost. Please make sure your backend is running!");
+      } else {
+        setError("Failed to Get Categories Data");
+      }
     } finally {
       setLoading(false);
     }
@@ -84,14 +91,29 @@ function Categories() {
   };
 
   // delete
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are You Sure to Delete this Category?")) return;
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
+  const handleDeleteClick = (category) => {
+    setDeleteTarget(category);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+    setDeleteError(null);
 
     try {
-      await axiosClient.delete(`/categories/${id}`);
+      await axiosClient.delete(`/categories/${deleteTarget.id}`);
+      setDeleteTarget(null);
       fetchCategories();
     } catch (err) {
-      alert("Failed to Delete this Category");
+      setDeleteError("Failed to Delete this Category");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -103,6 +125,27 @@ function Categories() {
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <p className="text-text-muted">Loading categories...</p>
+      </div>
+    );
+  }
+
+  // Tampilan ketika koneksi terputus / error
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-4 bg-surface border border-surface-border rounded-xl p-6 text-center max-w-lg mx-auto mt-10">
+        <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 text-xl font-bold">
+          !
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-purity-white mb-1">Connection Lost</h3>
+          <p className="text-text-muted text-sm">{error}</p>
+        </div>
+        <button
+          onClick={fetchCategories}
+          className="bg-electric-sapphire hover:bg-blue-400 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -232,7 +275,7 @@ function Categories() {
                       Edit
                     </button>
                     <button 
-                      onClick={() => handleDelete(category.id)}
+                      onClick={() => handleDeleteClick(category)}
                       className="px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
                     >
                       Delete
@@ -245,6 +288,17 @@ function Categories() {
           ))
         )}
       </div>
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete Category"
+        message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        confirmText="Delete Category"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+        loading={isDeleting}
+        error={deleteError}
+      />
 
     </div>
   );
