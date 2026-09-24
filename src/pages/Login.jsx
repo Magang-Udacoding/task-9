@@ -21,7 +21,13 @@ function Login() {
       await login(email, password);
       navigate('/items');
     } catch (err) {
-      setError('Email or Password Incorrect! Try Again');
+      if (!err.response) {
+        setError('Failed Connect to Server. Please Check Your Network')
+      } else if (err.response.status === 400) {
+        setError('Request Rejected by Server')
+      } else {
+        setError('Email or Password Incorrect!')
+      }
     } finally {
       setIsLoading(false);
     }

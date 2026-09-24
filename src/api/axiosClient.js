@@ -18,18 +18,21 @@ axiosClient.interceptors.request.use((config) => {
 });
 
 axiosClient.interceptors.response.use (
-    (response) => {
-        return response;
-    },
-    
+    (response) => response,
+
     (error) => {
         if (error.response && error.response.status === 401) 
         {
             localStorage.removeItem('token');
             window.location.href = '/login';
+            return Promise.reject(error);
+        }
+        
+        if (!error.response) {
+            console.error('Lost Connection to Server');
         }
         return Promise.reject(error);
     }
-)
+);
 
 export default axiosClient;
