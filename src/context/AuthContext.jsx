@@ -8,6 +8,17 @@ export function AuthProvider({children}) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
 
+    const register = async (name, email, password) => {
+        const response = await axiosClient.post('/register', {name, email, password});
+
+        const receivedToken = response.data.token;
+        const receivedUser = response.data.user;
+
+        localStorage.setItem('token', receivedToken);
+        setToken(receivedToken);
+        setUser(receivedUser);
+    }
+
     const login = async (email, password) => {
         const response = await axiosClient.post('/login', {email, password});
 
@@ -32,7 +43,7 @@ export function AuthProvider({children}) {
     }
 
     return (
-    <AuthContext.Provider value={{user, token, login, logout}}>
+    <AuthContext.Provider value={{user, token, register, login, logout}}>
     {children}
     </AuthContext.Provider>
     );
