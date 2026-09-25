@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -98,6 +98,13 @@ function Login() {
             )}
           </button>
         </form>
+
+        <p className="mt-6 text-center text-sm text-text-muted">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="text-electric-sapphire hover:text-blue-400 font-medium transition-colors">
+            Sign up
+          </Link>
+        </p>
 
       </div>
     </div>
